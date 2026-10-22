@@ -1,0 +1,19 @@
+diff --git a/drivers/misc/mediatek/tee_sanity/tee_sanity.c b/drivers/misc/mediatek/tee_sanity/tee_sanity.c
+index 716f49305..02dea4c19 100644
+--- a/drivers/misc/mediatek/tee_sanity/tee_sanity.c
++++ b/drivers/misc/mediatek/tee_sanity/tee_sanity.c
+@@ -271,7 +271,13 @@ static int tee_sanity_probe(struct platform_device *pdev)
+ 
+ 	pr_info(PFX "driver registered\n");
+ 
+-	if (IS_ERR(node)) {
++	/*
++	 * F25: the platform device is created without an OF node when the
++	 * 5.10 device tree does not describe this node, so the original
++	 * IS_ERR() test lets a NULL node through and irq_of_parse_and_map()
++	 * faults.  Bail out instead of dereferencing it.
++	 */
++	if (!node || IS_ERR(node)) {
+ 		pr_err(PFX "cannot find device node\n");
+ 		return -ENODEV;
+ 	}
