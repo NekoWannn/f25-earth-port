@@ -46,7 +46,7 @@ diff --git a/drivers/misc/mediatek/lcm/st7703_yihua_4313rq_640_960_mipi4/st7703_
 new file mode 100644
 --- /dev/null
 +++ b/drivers/misc/mediatek/lcm/st7703_yihua_4313rq_640_960_mipi4/st7703_yihua_4313rq_640_960_mipi4.c
-@@ -0,0 +1,251 @@
+@@ -0,0 +1,265 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * ST7703 640x960 MIPI4 panel for Qin F25 (MT8786).
@@ -117,6 +117,20 @@ new file mode 100644
 +#define REGFLAG_RESET_HIGH 0xFFFF
 +
 +static struct LCM_UTIL_FUNCS lcm_util;
++
++/*
++ * Proximity / gesture handling in the touchscreen drivers (focaltech, chipone,
++ * nt36525b) links against these two symbols, which upstream live in the LCM
++ * driver that ships with earth.  With only our panel selected they would be
++ * undefined, so provide them here.
++ */
++bool lcd_reset_keep_high;
++
++void set_lcd_reset_gpio_keep_high(bool en)
++{
++	lcd_reset_keep_high = en;
++}
++EXPORT_SYMBOL(set_lcd_reset_gpio_keep_high);
 +
 +#define SET_RESET_PIN(v) (lcm_util.set_reset_pin((v)))
 +#define MDELAY(n) (lcm_util.mdelay(n))
