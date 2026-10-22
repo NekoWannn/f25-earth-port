@@ -53,20 +53,22 @@ jobs:
           make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- \
                CROSS_COMPILE=aarch64-linux-gnu- earth_defconfig
           make -j"$(nproc)" O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- \
-               CROSS_COMPILE=aarch64-linux-gnu- Image.gz-dtb
+               CROSS_COMPILE=aarch64-linux-gnu- Image.gz
+          make -j"$(nproc)" O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- \
+               CROSS_COMPILE=aarch64-linux-gnu- dtbs
 
       - name: Report
         run: |
           ls -l src/out/arch/arm64/boot/
-          file src/out/arch/arm64/boot/Image.gz-dtb || true
-          strings src/out/arch/arm64/boot/Image 2>/dev/null | grep -m1 "Linux version" || true
+          ls -l src/out/arch/arm64/boot/dts/mediatek/ | head -20
+          gzip -l src/out/arch/arm64/boot/Image.gz || true
 
       - uses: actions/upload-artifact@v4
         with:
           name: kernel-out
           path: |
-            src/out/arch/arm64/boot/Image.gz-dtb
             src/out/arch/arm64/boot/Image.gz
             src/out/arch/arm64/boot/Image
+            src/out/arch/arm64/boot/dts/mediatek/*.dtb
             src/.config
           if-no-files-found: warn
