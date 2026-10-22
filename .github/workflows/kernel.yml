@@ -57,10 +57,20 @@ jobs:
           make -j"$(nproc)" O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- \
                CROSS_COMPILE=aarch64-linux-gnu- dtbs
 
+      - name: Board dtb (k69v1_64_k419 is not in dtb-y)
+        run: |
+          cd src
+          gcc -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
+              -I arch/arm64/boot/dts -I arch/arm64/boot/dts/mediatek \
+              -I include -I arch/arm64/include \
+              -o out/k69v1_64_k419.dts.tmp \
+              arch/arm64/boot/dts/mediatek/k69v1_64_k419.dts
+          out/scripts/dtc/dtc -O dtb -o out/k69v1_64_k419.dtb out/k69v1_64_k419.dts.tmp
+          ls -l out/k69v1_64_k419.dtb
+
       - name: Report
         run: |
           ls -l src/out/arch/arm64/boot/
-          ls -l src/out/arch/arm64/boot/dts/mediatek/ | head -20
           gzip -l src/out/arch/arm64/boot/Image.gz || true
 
       - uses: actions/upload-artifact@v4
@@ -69,6 +79,6 @@ jobs:
           path: |
             src/out/arch/arm64/boot/Image.gz
             src/out/arch/arm64/boot/Image
-            src/out/arch/arm64/boot/dts/mediatek/*.dtb
+            src/out/k69v1_64_k419.dtb
             src/.config
           if-no-files-found: warn
