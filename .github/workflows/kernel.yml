@@ -19,9 +19,16 @@ jobs:
 
       - name: AOSP clang r416183b (matches vendor build banner)
         run: |
-          curl -sSL -o clang.tgz "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android12-release/clang-r416183b.tar.gz"
+          for i in 1 2 3; do
+            curl -fL --retry 8 --retry-delay 5 --retry-all-errors \
+                 -o clang.tgz \
+                 "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android12-release/clang-r416183b.tar.gz" \
+              && file clang.tgz | grep -q gzip && break
+            echo "retry $i: bad download"; rm -f clang.tgz; sleep 10
+          done
+          file clang.tgz
           mkdir -p toolchain
-          tar -xzf clang.tgz -C toolchain
+          tar -xz -f clang.tgz -C toolchain
           ./toolchain/bin/clang --version
 
       - name: Kernel source (earth-s-oss, 4.19.191)
